@@ -16,6 +16,7 @@ INITIAL_POSTS_LIMIT = 3   # Quanti post prendere dalla ricerca iniziale
 USER_POSTS_LIMIT = 3      # Quanti post top scaricare per ogni utente scoperto
 DELAY = 1.5                # Pausa anti-ban
 MIN_REPLIES = 5            # Abbassiamo un po' il filtro per catturare più utenti
+MIN_REPLY_CHARS = 10       # Min lunghezza (caratteri) della risposta per essere considerata
 
 # --- LOGIN ---
 client = Client()
@@ -71,6 +72,10 @@ def process_single_thread(post_uri):
             if hasattr(reply.post, 'record'):
                 reply_text = extract_text_content(reply.post.record)
             
+            # Ignoriamo risposte troppo corte
+            if len(reply_text.strip()) < MIN_REPLY_CHARS:
+                continue
+
             edge_attr = {
                 'trigger_text': magnet_text,
                 'reply_content': reply_text

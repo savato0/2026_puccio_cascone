@@ -7,3 +7,10 @@ vaderSentiment
 matplotlib
 seaborn
 pyvis
+transformers
+torch
+scipy
+numpy
+pandas
+networkx
+tqdm
