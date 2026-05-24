@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 # --- CONFIGURAZIONE ---
 USERNAME = 'atlasover.bsky.social'
-with open('my_password.txt', 'r') as f:
+with open('../my_password.txt', 'r') as f:
     PASSWORD = f.read().strip()
 
 # Query Iniziale (Il "Seme" della valanga)

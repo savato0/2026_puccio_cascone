@@ -6,7 +6,7 @@ from tqdm import tqdm
 # --- CONFIGURAZIONE ---
 USERNAME = 'atlasover.bsky.social'
 # Legge la password dal file
-with open('my_password.txt', 'r') as f:
+with open('../my_password.txt', 'r') as f:
     PASSWORD = f.read().strip()
 
 # ==========================================

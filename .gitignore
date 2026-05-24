@@ -1,2 +1,17 @@
 my_password.txt
 private
+script_mio.py
+script_v2_mio.py
+
+
+# Add all .idea files and folders to .gitignore
+.idea/
+
+#Add all pycache files and folders to .gitignore
+__pycache__/
+
+#Add all macos files and folders to .gitignore
+.DS_Store
+.ipynb_checkpoints/
+.claude/
+report_so_far.tex
