@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # --- CONFIGURAZIONE ---
-INPUT_FILE = "dataset_snowball_aggregated.gexf"
-OUTPUT_FILE = "dataset_roberta_final.gexf"
+INPUT_FILE = "private/dataset_snowball_aggregated.gexf"
+OUTPUT_FILE = "private/dataset_roberta_final.gexf"
 MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
 
 # Device: Apple Silicon GPU (MPS) se disponibile, altrimenti CPU
