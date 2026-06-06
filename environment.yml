@@ -95,6 +95,7 @@ dependencies:
   - readline=8.3
   - seaborn=0.13.2
   - setuptools=80.9.0
+  - scipy
   - six=1.17.0
   - sqlite=3.51.0
   - stack_data=0.6.3
@@ -133,8 +134,11 @@ dependencies:
       - pydantic-core==2.41.5
       - pyvis==0.3.2
       - requests==2.32.5
+      - torch
+      - transformers
       - typing-inspection==0.4.2
       - urllib3==2.6.3
       - vadersentiment==3.3.2
       - websockets==15.0.1
+      - emoji
 prefix: /Users/savato/miniconda/envs/sna_env
