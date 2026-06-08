@@ -141,4 +141,6 @@ dependencies:
       - vadersentiment==3.3.2
       - websockets==15.0.1
       - emoji
+      - cdlib
+      - leidenalg
 prefix: /Users/savato/miniconda/envs/sna_env
