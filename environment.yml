@@ -141,6 +141,11 @@ dependencies:
       - vadersentiment==3.3.2
       - websockets==15.0.1
       - emoji
-      - cdlib
-      - leidenalg
+      - cdlib==0.4.1
+      - leidenalg==0.12.0
+      - igraph==1.0.0
+      - infomap==2.15.1
+      - wurlitzer==3.1.1
+      - python-louvain==0.16
+      - powerlaw==2.0.0
 prefix: /Users/savato/miniconda/envs/sna_env

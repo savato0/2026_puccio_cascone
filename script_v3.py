@@ -143,7 +143,9 @@ if __name__ == "__main__":
     print(f"👥 Utenti attivi scoperti in totale: {len(current_commenters)}")
 
     # Filtriamo chi espandere
-    users_to_expand = list(current_commenters)[:100]  # Limite di sicurezza
+    # sorted(): l'ordine di un set non e' stabile tra run diversi, quindi senza
+    # ordinamento la scelta dei 100 utenti da espandere non e' riproducibile.
+    users_to_expand = sorted(current_commenters)[:100]  # Limite di sicurezza
 
     print(f"🚀 FASE 2: Espansione a Valanga su {len(users_to_expand)} utenti...")
 
