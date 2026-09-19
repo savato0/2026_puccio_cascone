@@ -1,23 +1,39 @@
 # Conda Environment
 
-Run these commands from the project root.
+Ambiente di riferimento: **`sna_env312`**, Python 3.12.6.
+Eseguire i comandi dalla root del progetto.
 
-## Create the environment
+## Creare l'ambiente
+
+Da `environment.yml` (export completo, riproduce esattamente l'ambiente verificato):
 
 ```bash
 conda env create -f environment.yml
-conda activate sna_env
+conda activate sna_env312
 ```
 
-## Update an existing environment
+In alternativa, con pip:
 
 ```bash
-conda env update -n sna_env -f environment.yml --prune
-conda activate sna_env
+conda create -n sna_env312 python=3.12.6 -y
+conda activate sna_env312
+pip install -r requirements.txt
 ```
 
-## Use it in notebooks
+## Aggiornare un ambiente esistente
 
 ```bash
-python -m ipykernel install --user --name sna_env --display-name "Python (sna_env)"
+conda env update -n sna_env312 -f environment.yml --prune
+conda activate sna_env312
 ```
+
+## Usarlo nei notebook
+
+```bash
+python -m ipykernel install --user --name sna_env312 --display-name "sna_env312"
+```
+
+## Nota
+
+`cdlib` deve essere almeno 0.4.1: la 0.4.0 non accetta `leiden(seed=...)`, che serve a
+rendere riproducibile la partizione della Parte 3.

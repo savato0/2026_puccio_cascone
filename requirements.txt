@@ -1,21 +1,45 @@
-atproto==0.0.65
-ipykernel
-pandas
+# Social Network Analysis — final project (Puccio / Cascone), UNIPI 2025/26
+#
+# Python 3.12.6. Versioni verificate il 2026-09-19 rieseguendo le Parti 1-3:
+# tutti i numeri del report sono stati riprodotti e la partizione Leiden
+# (seed=42, 60 comunita) coincide nodo per nodo con quella di riferimento.
+#
+#   conda create -n sna_env312 python=3.12.6 -y
+#   pip install -r requirements.txt
+
+# --- analisi di rete -------------------------------------------------------
 networkx==3.6.1
-tqdm
-vaderSentiment
-matplotlib
-seaborn
-pyvis
-transformers
-torch
-scipy
-numpy
-emoji
-powerlaw==2.0.0
-cdlib==0.4.1
-leidenalg==0.12.0
-igraph==1.0.0
-infomap==2.15.1
-wurlitzer==3.1.1
-python-louvain==0.16
+numpy==2.5.3
+pandas==3.0.6
+scipy==1.18.1
+powerlaw==2.0.0            # Parte 2, fit della distribuzione dei gradi
+
+# --- community detection ---------------------------------------------------
+cdlib==0.4.1               # 0.4.0 NON accetta leiden(seed=...): non retrocedere
+leidenalg==0.12.0          # backend di cdlib
+igraph==1.0.0              # backend di cdlib
+infomap==2.15.1            # backend di cdlib
+wurlitzer==3.1.1           # cattura l'output C di infomap
+python-louvain==0.16       # backend di cdlib
+
+# --- grafici ---------------------------------------------------------------
+matplotlib==3.11.2
+seaborn==0.13.2
+
+# --- esecuzione dei notebook -----------------------------------------------
+ipykernel==7.3.0
+ipywidgets==8.1.8          # richiesto da "from tqdm.notebook import tqdm"
+tqdm==4.70.1
+
+# --- raccolta dati: solo script_v3.py --------------------------------------
+atproto==0.0.65
+
+# --- sentiment: solo graph_sentiment_roberta.py ----------------------------
+# Non servono ai notebook, che leggono il sentiment gia scritto nel .gexf.
+torch==2.14.0
+transformers==5.17.0
+
+# --- non importati da nessun file del repo (residui, da valutare) ----------
+emoji==2.16.0
+pyvis==0.3.2
+vaderSentiment==3.3.2      # sostituito da RoBERTa
