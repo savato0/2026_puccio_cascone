@@ -1,6 +1,9 @@
 """Passo 1 del nuovo crawl: ricerca dei post seme per parola chiave.
 
 E' l'unico passo che richiede il login (searchPosts non e' disponibile sull'API pubblica).
+Le risposte sono lette come JSON grezzo, senza i modelli della libreria atproto: la versione
+installata scarta un'intera pagina di risultati quando un post contiene un tipo di contenuto che
+non conosce (per esempio le gallerie di immagini, app.bsky.embed.gallery).
 Salva SOLO i metadati dei post trovati in private/v2/seeds.json; nessuna credenziale viene salvata.
 
 Uso (dalla root del worktree):
@@ -12,7 +15,7 @@ import os
 import time
 from datetime import datetime, timezone
 
-from atproto import Client
+import requests
 
 # Temi misti, due parole chiave per tema (piano approvato il 2026-10-01)
 QUERIES = {
@@ -29,6 +32,44 @@ MIN_REPLIES = 5              # thread senza conversazione non servono
 PAGE_DELAY = 1.0
 
 
+ENTRYWAY = "https://bsky.social/xrpc/"
+
+
+def search_page(pds, headers, params, tries=5):
+    """Una pagina di searchPosts come JSON grezzo; None dopo ripetuti errori."""
+    for attempt in range(tries):
+        try:
+            r = requests.get(pds + "app.bsky.feed.searchPosts", params=params, headers=headers, timeout=30)
+            if r.status_code == 200:
+                return r.json()
+            print(f"    HTTP {r.status_code}: {r.text[:200]}")
+        except requests.RequestException as e:
+            print(f"    errore di rete: {e}")
+        time.sleep(2 ** attempt)
+    return None
+
+
+def extract_seed(p, topic, q, rank):
+    """Metadati di un post trovato; None se e' una risposta o ha meno di MIN_REPLIES risposte."""
+    rec = p.get("record", {})
+    if rec.get("reply") is not None:          # solo post originali, non risposte
+        return None
+    if (p.get("replyCount") or 0) < MIN_REPLIES:
+        return None
+    return {
+        "uri": p["uri"],
+        "author_did": p["author"]["did"],
+        "author_handle": p["author"]["handle"],
+        "topic": topic,
+        "query": q,
+        "search_rank": rank,
+        "reply_count": p.get("replyCount"),
+        "like_count": p.get("likeCount"),
+        "created_at": rec.get("createdAt"),
+        "text": rec.get("text", ""),
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--handle", required=True)
@@ -38,49 +79,44 @@ def main():
 
     with open(args.password_file) as f:
         password = f.read().strip()
-    client = Client()
-    client.login(args.handle, password)
+    r = requests.post(ENTRYWAY + "com.atproto.server.createSession",
+                      json={"identifier": args.handle, "password": password}, timeout=30)
     del password
+    r.raise_for_status()
+    session = r.json()
+    pds = ENTRYWAY
+    for svc in (session.get("didDoc") or {}).get("service", []):
+        if svc.get("id") == "#atproto_pds":
+            pds = svc["serviceEndpoint"].rstrip("/") + "/xrpc/"
+    headers = {"Authorization": "Bearer " + session["accessJwt"],
+               "atproto-proxy": "did:web:api.bsky.app#bsky_appview"}
     print(f"Login ok come {args.handle}")
 
     seeds, seen = [], set()
     for topic, queries in QUERIES.items():
         for q in queries:
-            n_kept, cursor, pages = 0, None, 0
+            n_kept, cursor, pages, errors = 0, None, 0, 0
             while n_kept < CANDIDATES_PER_QUERY and pages < 30:
                 params = {"q": q, "lang": "en", "sort": "top", "limit": 100,
                           "since": SINCE, "until": UNTIL}
                 if cursor:
                     params["cursor"] = cursor
-                try:
-                    res = client.app.bsky.feed.search_posts(params=params)
-                except Exception as e:
-                    print(f"  errore su '{q}' pagina {pages}: {e}")
+                res = search_page(pds, headers, params)
+                if res is None:
+                    errors += 1
+                    print(f"  errore su '{q}' pagina {pages}")
                     break
                 pages += 1
-                for rank, p in enumerate(res.posts):
-                    rec = p.record
-                    if getattr(rec, "reply", None) is not None:   # solo post originali, non risposte
+                for p in res.get("posts", []):
+                    seed = extract_seed(p, topic, q, n_kept)
+                    if seed is None or seed["uri"] in seen:
                         continue
-                    if (p.reply_count or 0) < MIN_REPLIES or p.uri in seen:
-                        continue
-                    seen.add(p.uri)
-                    seeds.append({
-                        "uri": p.uri,
-                        "author_did": p.author.did,
-                        "author_handle": p.author.handle,
-                        "topic": topic,
-                        "query": q,
-                        "search_rank": n_kept,
-                        "reply_count": p.reply_count,
-                        "like_count": p.like_count,
-                        "created_at": getattr(rec, "created_at", None),
-                        "text": getattr(rec, "text", ""),
-                    })
+                    seen.add(seed["uri"])
+                    seeds.append(seed)
                     n_kept += 1
                     if n_kept >= CANDIDATES_PER_QUERY:
                         break
-                cursor = res.cursor
+                cursor = res.get("cursor")
                 if not cursor:
                     break
                 time.sleep(PAGE_DELAY)
