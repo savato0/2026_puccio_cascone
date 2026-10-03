@@ -6,7 +6,7 @@ le etichette in ordine sbagliato: qui l'ordine e' corretto e verificato su frasi
 
 Input : private/v2/comments.csv, private/v2/posts_authors.jsonl, private/v2/dataset_snowball_aggregated.gexf
 Output: private/v2/comments_scored.csv      (commenti della rete)
-        private/v2/authors_scored.csv       (post e risposte dalla cronologia degli utenti)
+        private/v2/authors_scored.csv       (risposte in inglese dalla cronologia degli utenti)
         private/v2/dataset_roberta_final.gexf (rete con sentiment_roberta = media per arco)
 """
 import argparse
@@ -72,6 +72,9 @@ def main():
     if os.path.exists(f"{D}/posts_authors.jsonl"):
         A = pd.read_json(f"{D}/posts_authors.jsonl", lines=True).drop_duplicates("uri")
         A = A[A.text.fillna("").str.strip().str.len() >= 5]
+        # Alla Parte 4 servono solo le risposte in inglese: le altre non vengono valutate
+        en = A.langs.isna() | A.langs.astype(str).str.contains("'en'")
+        A = A[A.is_reply & en]
         A = score(A, sent, emo)
         A.to_csv(f"{D}/authors_scored.csv", index=False)
         print(f"Post dalle cronologie: {len(A):,}")
