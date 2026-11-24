@@ -64,8 +64,6 @@ The code is in the folder \texttt{crawl\_v2}. The crawl was run on 3 October 202
 
 \textbf{Limitations of the sampling.} The sample is not random. The seeds are popular posts, so their authors become hubs with hundreds of neighbours; in the open question we treat the 192 seed authors separately. The threads cover two weeks, and politics is the largest topic (41\% of the nodes, against 16--22\% for the other three).
 
-\textbf{Previous version.} A first crawl (February 2026) used three political keywords, threads of depth 3 and saved only the replies inside the threads. It produced a network of similar size (10,855 nodes), but with it the open question could not be answered: the most central accounts had no written text and 79\% of the users wrote a single reply. This is why we collected the data again.
-
 \subsection{Sentiment Enrichment}\label{sec:sentiment}
 We computed the sentiment of every reply with \texttt{cardiffnlp/}\allowbreak\texttt{twitter-roberta-base-sentiment-latest}, a RoBERTa model trained on tweets \cite{loureiro2022timelms}. For each reply the model returns the probabilities of the classes negative, neutral and positive; we use $s = p_{pos} - p_{neg} \in [-1,+1]$. The sentiment of an edge is the mean of its replies. We also scored every reply with an emotion classifier of the same family (\texttt{twitter-roberta-base-emotion}: anger, joy, optimism, sadness). The labels in the configuration file of this model on the hub are in the wrong order, so we fixed them and checked them on four control sentences.
 
